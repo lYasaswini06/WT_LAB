@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lab Ex 2: Sunset Media</title>
+    <style>
+        body { background: #1a0b2e; color: #ff007f; font-family: 'Courier New', monospace; padding: 50px; }
+        .wrapper { max-width: 900px; margin: auto; border: 2px solid #ff007f; padding: 25px; background: rgba(255, 0, 127, 0.05); border-radius: 15px; box-shadow: 0 0 30px rgba(255, 0, 127, 0.2); }
+        h1 { text-align: center; text-transform: uppercase; color: #ffbd00; text-shadow: 3px 3px 0px #7000ff; }
+        .media-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 30px; }
+        .box { border: 1px solid #ffbd00; padding: 15px; background: #0f041d; border-radius: 10px; }
+        .box h2 { font-size: 1rem; margin-top: -25px; background: #ffbd00; color: #1a0b2e; display: inline-block; padding: 2px 12px; border: 1px solid #1a0b2e; }
+        .monitor { background: #000; border: 1px solid #7000ff; padding: 8px; margin: 15px 0; border-radius: 5px; }
+        .timer-display { font-size: 1.4rem; color: #ffbd00; text-align: center; font-weight: bold; border: 1px solid #7000ff; padding: 5px; border-radius: 20px; }
+        video { width: 100%; border-radius: 3px; }
+        audio { width: 100%; height: 35px; filter: hue-rotate(280deg) brightness(1.2) contrast(1.2); }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <h1>MULTIMEEDIA HUB</h1>
+        <div class="media-grid">
+            <div class="box">
+                <h2>AUDIO_TRACK</h2>
+                <div class="monitor">
+                    <audio id="playerA" controls src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"></audio>
+                </div>
+                <div class="timer-display">
+                    <span id="timeA">0.00</span>s
+                </div>
+            </div>
+
+            <div class="box">
+                <h2>VIDEO_STREAM</h2>
+                <div class="monitor">
+                    <video id="playerV" controls src="https://www.w3schools.com/html/movie.mp4"></video>
+                </div>
+                <div class="timer-display">
+                    <span id="timeV">0.00</span>s
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const a = document.getElementById('playerA');
+        const v = document.getElementById('playerV');
+        
+        const sync = (media, target) => {
+            document.getElementById(target).innerText = media.currentTime.toFixed(2);
+        };
+
+        a.ontimeupdate = () => sync(a, 'timeA');
+        v.ontimeupdate = () => sync(v, 'timeV');
+    </script>
+</body>
+</html>

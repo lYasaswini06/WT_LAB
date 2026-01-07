@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Exercise 3: Advanced Drag and Drop Task Manager</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500&family=Playfair+Display:wght@700&display=swap');
+
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            padding: 50px; 
+            background-color: #f3f0ff; 
+            color: #2d3436; 
+        }
+
+        h2 { 
+            font-family: 'Playfair Display', serif; 
+            text-align: center; 
+            font-size: 2.5em; 
+            color: #4834d4; 
+            margin-bottom: 30px;
+        }
+
+        .controls { text-align: center; margin-bottom: 50px; }
+        
+        #ti { 
+            padding: 15px; 
+            width: 320px; 
+            border: 2px solid #be95c4; 
+            border-radius: 30px; 
+            margin-right: 15px; 
+            outline: none;
+        }
+        
+        button { 
+            padding: 15px 35px; 
+            background: #6c5ce7; 
+            color: white; 
+            border: none; 
+            border-radius: 30px; 
+            cursor: pointer; 
+            font-weight: 500; 
+            transition: 0.3s;
+        }
+        button:hover { background: #4834d4; }
+        
+        .board { display: flex; gap: 30px; justify-content: center; }
+        
+        .col { 
+            flex: 1; 
+            max-width: 340px; 
+            background: #ffffff; 
+            padding: 25px; 
+            min-height: 550px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        
+        .col h3 { 
+            font-family: 'Playfair Display', serif;
+            margin-top: 0; 
+            color: #6c5ce7; 
+            text-align: center; 
+        }
+
+        .card { 
+            background: #f8f9fa; 
+            padding: 20px; 
+            margin: 20px 0; 
+            border-radius: 15px; 
+            cursor: grab; 
+            border-top: 4px solid #a29bfe;
+            transition: 0.3s;
+        }
+        
+        .card b { display: block; margin-bottom: 8px; color: #2d3436; }
+        .card span { font-size: 0.8em; color: #636e72; }
+        
+        /* THE UPDATED COLORS */
+        .done { 
+            background-color: #fff9db !important; 
+            border-top-color: #fcc419 !important; 
+            box-shadow: 0 4px 15px rgba(252, 196, 25, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Task Studio</h2>
+
+    <div class="controls">
+        <input type="text" id="ti" placeholder="Describe your task...">
+        <button onclick="add()">+ Add Task</button>
+    </div>
+
+    <div class="board">
+        <div class="col" id="ToDo" ondragover="event.preventDefault()" ondrop="dp(event)"><h3>To Do</h3></div>
+        <div class="col" id="InProgress" ondragover="event.preventDefault()" ondrop="dp(event)"><h3>In Progress</h3></div>
+        <div class="col" id="Completed" ondragover="event.preventDefault()" ondrop="dp(event)"><h3>Completed</h3></div>
+    </div>
+
+    <script>
+        function add() {
+            const val = document.getElementById('ti').value;
+            if(!val) return;
+
+            const el = document.createElement('div');
+            el.className = 'card';
+            el.id = 'task-' + Date.now();
+            el.draggable = true;
+            el.ondragstart = (e) => e.dataTransfer.setData("text", e.target.id);
+
+            el.innerHTML = `<b>${val}</b><span>Assigned: ${new Date().toLocaleDateString()}</span>`;
+            document.getElementById('ToDo').appendChild(el);
+            document.getElementById('ti').value = '';
+        }
+
+        function dp(e) {
+            e.preventDefault();
+            const id = e.dataTransfer.getData("text");
+            const card = document.getElementById(id);
+            const targetCol = e.target.closest('.col');
+            
+            if (targetCol && card) {
+                targetCol.appendChild(card);
+                if(targetCol.id === 'Completed') {
+                    card.classList.add('done');
+                    setTimeout(() => alert("Task Completed Successfully"), 100);
+                } else {
+                    card.classList.remove('done');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

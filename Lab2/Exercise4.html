@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Exercise 4: User System</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: #e3f2fd; 
+            padding: 30px; 
+            color: #333;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        h2 { text-align: center; color: #1565c0; }
+
+        form { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; }
+
+        input { 
+            flex: 1 1 45%; 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            outline: none;
+        }
+
+        input:focus { border-color: #1565c0; }
+
+        button { 
+            cursor: pointer; 
+            border: none; 
+            transition: 0.2s;
+            font-weight: bold;
+        }
+
+        .add-btn { 
+            width: 100%; 
+            padding: 12px; 
+            background: #1565c0; 
+            color: white; 
+            border-radius: 8px; 
+        }
+
+        .add-btn:hover { background: #0d47a1; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+
+        th { background: #f5f5f5; padding: 12px; text-align: left; border-bottom: 2px solid #ddd; }
+
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+
+        .del-btn { background: #ffcdd2; color: #c62828; padding: 5px 10px; border-radius: 5px; }
+
+        .del-btn:hover { background: #ef9a9a; }
+
+        .clear-btn { 
+            display: block; 
+            margin: 20px auto 0; 
+            background: #37474f; 
+            color: white; 
+            padding: 10px 20px; 
+            border-radius: 8px; 
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>User Management</h2>
+    
+    <form id="uForm">
+        <input type="text" id="n" placeholder="Name" required>
+        <input type="email" id="e" placeholder="Email" required>
+        <input type="number" id="m" placeholder="Mobile (10 digits)" required>
+        <input type="password" id="p" placeholder="Password (min 6)" required>
+        <button type="submit" class="add-btn">Register User</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Mobile</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="ut"></tbody>
+    </table>
+
+    <button class="clear-btn" onclick="wipe()">Clear All Records</button>
+</div>
+
+<script>
+    const frm = document.getElementById('uForm');
+    
+    frm.onsubmit = (e) => {
+        e.preventDefault();
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        
+        const newUser = {
+            name: document.getElementById('n').value,
+            email: document.getElementById('e').value,
+            mobile: document.getElementById('m').value,
+            pass: document.getElementById('p').value
+        };
+
+        if (newUser.mobile.length !== 10) return alert("Mobile must be 10 digits");
+        if (newUser.pass.length < 6) return alert("Password too short");
+        if (users.some(u => u.email === newUser.email)) return alert("Email already exists");
+
+        users.push(newUser);
+        localStorage.setItem('users', JSON.stringify(users));
+        frm.reset();
+        shw();
+    };
+
+    function shw() {
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        document.getElementById('ut').innerHTML = users.map((u, i) => `
+            <tr>
+                <td>${u.name}</td>
+                <td>${u.email}</td>
+                <td>${u.mobile}</td>
+                <td><button class="del-btn" onclick="remove(${i})">Delete</button></td>
+            </tr>`).join('');
+    }
+
+    function remove(i) {
+        const users = JSON.parse(localStorage.getItem('users'));
+        users.splice(i, 1);
+        localStorage.setItem('users', JSON.stringify(users));
+        shw();
+    }
+
+    function wipe() {
+        if(confirm("Delete all?")) {
+            localStorage.clear();
+            shw();
+        }
+    }
+
+    shw();
+</script>
+
+</body>
+</html>

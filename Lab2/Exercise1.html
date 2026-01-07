@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lab Ex 1: Unique Canvas</title>
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #1a1a1a; }
+        canvas { border: 3px solid #444; background: #000; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+    </style>
+</head>
+<body>
+    <canvas id="c" width="500" height="300"></canvas>
+    <script>
+        const v = document.getElementById('c');
+        const x = v.getContext('2d');
+
+        x.shadowBlur = 15;
+        x.shadowColor = "#00ff88";
+        x.fillStyle = "#00ff88";
+        x.fillRect(60, 40, 130, 90);
+
+        x.shadowColor = "#ff0077";
+        x.beginPath();
+        x.arc(380, 85, 45, 0, Math.PI * 2);
+        x.fillStyle = "#ff0077";
+        x.fill();
+
+        x.shadowBlur = 10;
+        x.shadowColor = "#00d4ff";
+        x.beginPath();
+        x.moveTo(40, 190);
+        x.lineTo(460, 190);
+        x.lineWidth = 4;
+        x.strokeStyle = "#00d4ff";
+        x.stroke();
+
+        x.shadowBlur = 5;
+        x.shadowColor = "white";
+        x.font = "bold 32px 'Courier New'";
+        x.fillStyle = "#ffffff";
+        x.textAlign = "center";
+        x.fillText("HTML5 Canvas", 250, 265);
+    </script>
+</body>
+</html>
