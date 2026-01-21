@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro-Student Registration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --accent: #00cec9;
+            --error: #ff7675;
+            --success: #55efc4;
+            --dark: #2d3436;
+        }
+
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(135deg, #6c5ce7 0%, #00cec9 100%);
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container { 
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 40px; 
+            border-radius: 24px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2); 
+            width: 100%; 
+            max-width: 420px; 
+            transition: 0.3s;
+        }
+
+        h2 { color: var(--dark); margin-top: 0; font-weight: 600; text-align: center; }
+
+        .group { margin-bottom: 18px; position: relative; }
+
+        label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 6px; color: var(--primary); }
+
+        input, select { 
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 2px solid #dfe6e9; 
+            border-radius: 12px; 
+            font-size: 14px; 
+            font-family: inherit;
+            transition: all 0.3s ease; 
+            box-sizing: border-box; 
+        }
+
+        input:focus { border-color: var(--primary); outline: none; background: #f9f9ff; }
+
+        .err { color: var(--error); font-size: 11px; margin-top: 4px; display: none; font-weight: 500; }
+
+        /* Status colors */
+        .invalid { border-color: var(--error) !important; background: #fff5f5; }
+        .valid { border-color: var(--success) !important; background: #f4fffb; }
+        .hidden { display: none; }
+
+        button { 
+            width: 100%; 
+            padding: 15px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 16px;
+            margin-top: 20px; 
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+            transition: 0.3s; 
+        }
+
+        button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4); }
+        button:disabled { background: #b2bec3; cursor: not-allowed; box-shadow: none; }
+
+        #msg-box { text-align: center; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="mainBox">
+    <div id="formContent">
+        <h2>Join Community</h2>
+        <form id="regForm" novalidate>
+            <div class="group">
+                <label>Name</label>
+                <input type="text" id="name" placeholder="Enter your name">
+                <div class="err" id="nameErr">Min 3 letters required</div>
+            </div>
+
+            <div class="group">
+                <label>Pick a Role</label>
+                <select id="role">
+                    <option value="Student">Student</option>
+                    <option value="Teacher">Teacher</option>
+                    <option value="Admin">Admin</option>
+                </select>
+            </div>
+
+            <div class="group">
+                <label>Email Address</label>
+                <input type="email" id="email" placeholder="user@domain.com">
+                <div class="err" id="emailErr">Use authorized domain for this role</div>
+            </div>
+
+            <div class="group" id="ageRow">
+                <label>Age</label>
+                <input type="number" id="age" placeholder="0">
+                <div class="err" id="ageErr">Age restricted for this role</div>
+            </div>
+
+            <div class="group" id="skillRow">
+                <label>Skills</label>
+                <input type="text" id="skills" placeholder="e.g. Coding, Design">
+            </div>
+
+            <div class="group">
+                <label>Secret Password</label>
+                <input type="password" id="pass" placeholder="••••••••">
+                <div class="err" id="passErr">Password too weak for your role</div>
+            </div>
+
+            <div class="group">
+                <label>Confirm Password</label>
+                <input type="password" id="confirm" placeholder="••••••••">
+                <div class="err" id="confirmErr">Passwords do not match</div>
+            </div>
+
+            <button type="submit" id="submit" disabled>Create Account</button>
+        </form>
+    </div>
+
+    <div id="msg-box">
+        <h2 style="color: var(--success)">All Set!</h2>
+        <p>Your account has been validated and created successfully.</p>
+        <button onclick="location.reload()" style="background: var(--dark)">Go Back</button>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('regForm');
+    const roleEl = document.getElementById('role');
+    const inputs = Array.from(form.querySelectorAll('input'));
+    const btn = document.getElementById('submit');
+
+    // Dynamic rules configuration
+    const rules = {
+        Student: { age: 16, pass: /.{6,}/, domains: ['gmail.com', 'yahoo.com'], showSkills: true },
+        Teacher: { age: 25, pass: /^(?=.*[0-9]).{8,}$/, domains: ['edu.com'], showSkills: true },
+        Admin:   { age: 18, pass: /^(?=.*[0-9])(?=.*[!@#$%^&*]).{10,}$/, domains: ['corp.com'], showSkills: false }
+    };
+
+    function updateView() {
+        const config = rules[roleEl.value];
+        document.getElementById('skillRow').style.display = config.showSkills ? 'block' : 'none';
+        runValidation();
+    }
+
+    function checkField(el) {
+        const role = roleEl.value;
+        const config = rules[role];
+        const val = el.value.trim();
+        let isValid = false;
+
+        if (val === "") return false;
+
+        if (el.id === 'name') isValid = val.length >= 3;
+        if (el.id === 'email') isValid = config.domains.includes(val.split('@')[1]);
+        if (el.id === 'age') isValid = parseInt(val) >= config.age;
+        if (el.id === 'pass') isValid = config.pass.test(val);
+        if (el.id === 'confirm') isValid = val === document.getElementById('pass').value;
+        if (el.id === 'skills') isValid = true;
+
+        const errorDiv = document.getElementById(el.id + 'Err');
+        
+        if (isValid) {
+            el.className = 'valid';
+            if(errorDiv) errorDiv.style.display = 'none';
+        } else {
+            el.className = 'invalid';
+            if(errorDiv) errorDiv.style.display = 'block';
+        }
+        
+        return isValid;
+    }
+
+    function runValidation() {
+        const role = roleEl.value;
+        const allOk = inputs.every(input => {
+            if (input.id === 'skills' && !rules[role].showSkills) return true;
+            return checkField(input);
+        });
+        btn.disabled = !allOk;
+    }
+
+    roleEl.addEventListener('change', updateView);
+    inputs.forEach(input => input.addEventListener('input', runValidation));
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        document.getElementById('formContent').style.display = 'none';
+        document.getElementById('msg-box').style.display = 'block';
+    });
+
+    updateView();
+</script>
+
+</body>
+</html>

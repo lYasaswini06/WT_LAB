@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Activity Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-green: #00ff88;
+            --neon-red: #ff4757;
+            --bg-dark: #0f172a;
+            --panel: #1e293b;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-dark);
+            color: white;
+            padding: 30px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .dashboard {
+            width: 100%;
+            max-width: 800px;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        .control-panel, .log-panel {
+            background: var(--panel);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        h2 { font-size: 16px; color: var(--neon-green); text-transform: uppercase; margin-top: 0; }
+
+        .input-test {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: white;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        #log-container {
+            height: 300px;
+            overflow-y: auto;
+            font-size: 12px;
+            border: 1px solid #334155;
+            padding: 10px;
+            background: #020617;
+            border-radius: 8px;
+        }
+
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid #1e293b;
+            color: #94a3b8;
+        }
+
+        .warning {
+            background: rgba(255, 71, 87, 0.1);
+            color: var(--neon-red);
+            padding: 10px;
+            border: 1px solid var(--neon-red);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+
+        button {
+            flex: 1;
+            padding: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .btn-reset { background: #475569; color: white; }
+        .btn-export { background: var(--neon-green); color: #0f172a; }
+    </style>
+</head>
+<body id="monitor-root">
+
+<h1 style="letter-spacing: 5px; color: var(--neon-green)">SYSTEM MONITOR v1.0</h1>
+
+<div id="alert-box" class="warning">SUSPICIOUS ACTIVITY DETECTED: EXCESSIVE CLICKS</div>
+
+<div class="dashboard">
+    <div class="control-panel">
+        <h2>Interact Here</h2>
+        <input type="text" class="input-test" placeholder="Type something...">
+        <input type="text" class="input-test" placeholder="Focus here...">
+        <button id="click-bait" style="background: var(--neon-red); color: white; margin-bottom: 10px;">Rapid Click Test</button>
+        
+        <div class="btn-group">
+            <button class="btn-reset" id="reset-btn">Reset</button>
+            <button class="btn-export" id="export-btn">Export</button>
+        </div>
+    </div>
+
+    <div class="log-panel">
+        <h2>Live Activity Feed</h2>
+        <div id="log-container"></div>
+    </div>
+</div>
+
+<script>
+    const log = [];
+    const logEl = document.getElementById('log-container');
+    const alertBox = document.getElementById('alert-box');
+    let clickCount = 0;
+    let clickTimer;
+
+    function addLog(type, target, details = "") {
+        const entry = {
+            time: new Date().toLocaleTimeString(),
+            type: type,
+            target: target,
+            details: details
+        };
+        log.push(entry);
+        
+        const div = document.createElement('div');
+        div.className = 'log-entry';
+        div.innerHTML = `[${entry.time}] <b style="color:var(--neon-green)">${type}</b> on ${target} ${details}`;
+        logEl.prepend(div);
+    }
+
+    document.addEventListener('click', (e) => {
+        addLog('CLICK', e.target.tagName);
+        
+        clickCount++;
+        clearTimeout(clickTimer);
+        clickTimer = setTimeout(() => clickCount = 0, 2000);
+
+        if (clickCount > 10) {
+            alertBox.style.display = 'block';
+            setTimeout(() => alertBox.style.display = 'none', 3000);
+        }
+    }, true);
+
+    document.addEventListener('keydown', (e) => {
+        addLog('KEYPRESS', 'WINDOW', `Key: ${e.key}`);
+    });
+
+    document.addEventListener('focus', (e) => {
+        if(e.target.tagName === 'INPUT') {
+            addLog('FOCUS', e.target.placeholder);
+        }
+    }, true);
+
+    document.getElementById('reset-btn').addEventListener('click', () => {
+        log.length = 0;
+        logEl.innerHTML = "";
+        alertBox.style.display = 'none';
+    });
+
+    document.getElementById('export-btn').addEventListener('click', () => {
+        if (log.length === 0) return alert("No logs to export!");
+        
+        const text = log.map(l => `${l.time} | ${l.type} | ${l.target} | ${l.details}`).join('\n');
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'activity_report.txt';
+        a.click();
+    });
+</script>
+
+</body>
+</html>

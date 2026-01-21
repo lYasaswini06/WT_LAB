@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Cart - India Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.05);
+            --neon-blue: #00d2ff;
+            --neon-pink: #f72585;
+            --gold: #fbc531;
+            --text: #ffffff;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #0a0a12;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 25px;
+            width: 95%;
+            max-width: 1100px;
+            margin-top: 30px;
+        }
+
+        .panel {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .time-banner {
+            background: rgba(251, 197, 49, 0.1);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+
+        .shop-item {
+            background: rgba(255,255,255,0.03);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid transparent;
+            transition: 0.3s;
+        }
+
+        .shop-item:hover { border-color: var(--neon-blue); background: rgba(255,255,255,0.08); }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+        }
+
+        .btn-add {
+            background: var(--neon-blue);
+            border: none;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            color: #000;
+            margin-top: 10px;
+        }
+
+        .summary-box {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .line { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+        .promo { color: var(--neon-pink); font-weight: 600; }
+        .night { color: var(--gold); font-weight: 600; }
+        .total-line { font-size: 24px; color: var(--neon-blue); font-weight: 600; margin-top: 15px; }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+<h1 style="margin-top: 40px; letter-spacing: 5px;">TECH STORE ₹</h1>
+
+<div class="layout">
+    <div class="panel">
+        <div class="time-banner" id="time-info">Checking Time...</div>
+        <h2>Products</h2>
+        <div class="product-grid" id="catalog"></div>
+    </div>
+
+    <div class="panel">
+        <h2>My Cart</h2>
+        <div id="cart-display"></div>
+
+        <div class="summary-box">
+            <input type="text" id="promo-input" placeholder="Coupon Code (e.g. SAVE20)">
+            <div class="line"><span>Subtotal:</span><span id="sub">₹0</span></div>
+            <div class="line promo"><span>Bulk Discount:</span><span id="bulk">-₹0</span></div>
+            <div class="line night"><span>Night Sale:</span><span id="night-val">-₹0</span></div>
+            <div class="line promo"><span>Promo Applied:</span><span id="promo-val">-₹0</span></div>
+            <div class="line total-line"><span>Final Total:</span><span id="total">₹0</span></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const inventory = [
+        { id: 1, name: "Wireless Mouse", price: 1200, cat: "Tech" },
+        { id: 2, name: "Gaming Keyboard", price: 3500, cat: "Tech" },
+        { id: 3, name: "USB-C Hub", price: 2500, cat: "Accessory" },
+        { id: 4, name: "Bluetooth Buds", price: 1999, cat: "Audio" },
+        { id: 5, name: "Power Bank", price: 1500, cat: "Tech" },
+        { id: 6, name: "Laptop Stand", price: 800, cat: "Office" }
+    ];
+
+    let cart = [];
+    let promoPct = 0;
+
+    function getNightDiscount() {
+        const hour = new Date().getHours();
+        // Night Sale between 9 PM and 6 AM
+        return (hour >= 21 || hour <= 6) ? 0.10 : 0;
+    }
+
+    function renderCatalog() {
+        const catDiv = document.getElementById('catalog');
+        inventory.forEach(p => {
+            const el = document.createElement('div');
+            el.className = 'shop-item';
+            el.innerHTML = `
+                <div style="font-size: 12px; opacity: 0.6">${p.cat}</div>
+                <div style="font-weight: 600; margin: 5px 0;">${p.name}</div>
+                <div style="color: var(--neon-blue); font-weight: bold;">₹${p.price}</div>
+                <button class="btn-add" onclick="addToCart(${p.id})">ADD TO CART</button>
+            `;
+            catDiv.appendChild(el);
+        });
+    }
+
+    function addToCart(id) {
+        const existing = cart.find(i => i.id === id);
+        if (existing) {
+            existing.qty++;
+        } else {
+            const p = inventory.find(x => x.id === id);
+            cart.push({ ...p, qty: 1 });
+        }
+        updateUI();
+    }
+
+    function changeQty(id, delta) {
+        const item = cart.find(i => i.id === id);
+        if (item) {
+            item.qty += delta;
+            if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+        }
+        updateUI();
+    }
+
+    function calculate() {
+        let sub = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
+        
+        // Bulk Rule: 15% off if buying 3+ of the same item
+        let bulk = 0;
+        cart.forEach(i => {
+            if (i.qty >= 3) bulk += (i.price * i.qty) * 0.15;
+        });
+
+        let nightFactor = getNightDiscount();
+        let nightVal = sub * nightFactor;
+        
+        const banner = document.getElementById('time-info');
+        banner.textContent = nightFactor > 0 
+            ? "🌙 NIGHT OWL ACTIVE: 10% Extra Discount Applied!" 
+            : "☀️ Standard Pricing (Night sale starts at 9 PM)";
+
+        let promoVal = sub * promoPct;
+        let final = sub - bulk - promoVal - nightVal;
+
+        document.getElementById('sub').textContent = `₹${sub.toLocaleString('en-IN')}`;
+        document.getElementById('bulk').textContent = `-₹${bulk.toLocaleString('en-IN')}`;
+        document.getElementById('night-val').textContent = `-₹${nightVal.toLocaleString('en-IN')}`;
+        document.getElementById('promo-val').textContent = `-₹${promoVal.toLocaleString('en-IN')}`;
+        document.getElementById('total').textContent = `₹${Math.max(0, final).toLocaleString('en-IN')}`;
+    }
+
+    document.getElementById('promo-input').addEventListener('input', (e) => {
+        const val = e.target.value.toUpperCase();
+        // Coupon logic: SAVE followed by a number
+        if (val.startsWith("SAVE")) {
+            const num = val.slice(4);
+            if (!isNaN(num) && num !== "") {
+                promoPct = parseInt(num) / 100;
+            }
+        } else {
+            promoPct = 0;
+        }
+        calculate();
+    });
+
+    function updateUI() {
+        const display = document.getElementById('cart-display');
+        display.innerHTML = cart.length === 0 ? '<p style="text-align:center; opacity:0.4">Cart is empty</p>' : '';
+        
+        cart.forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'cart-item';
+            el.innerHTML = `
+                <div>
+                    <div style="font-weight:600">${item.name}</div>
+                    <div style="font-size:12px; color:var(--neon-blue)">₹${item.price} each</div>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px">
+                    <button style="color:white; background:none; border:1px solid #444; width:25px; cursor:pointer" onclick="changeQty(${item.id}, -1)">-</button>
+                    <span style="font-weight:bold">${item.qty}</span>
+                    <button style="color:white; background:none; border:1px solid #444; width:25px; cursor:pointer" onclick="changeQty(${item.id}, 1)">+</button>
+                </div>
+            `;
+            display.appendChild(el);
+        });
+        calculate();
+    }
+
+    renderCatalog();
+    updateUI();
+</script>
+</body>
+</html>

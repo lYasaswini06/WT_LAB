@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Engine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* New Vibrant Color Palette */
+            --primary: #ff7e5f;
+            --accent: #feb47b;
+            --deep: #6a11cb;
+            --purple: #2575fc;
+            --success: #00b894;
+            --danger: #ff7675;
+            --muted: #f1f2f6;
+            --glass: rgba(255, 255, 255, 0.95);
+        }
+
+        body { 
+            font-family: 'Lexend', sans-serif; 
+            /* Gradient background matching the theme */
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); 
+            color: #2d3436;
+            display: flex; 
+            justify-content: center; 
+            padding-top: 50px;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .container { 
+            background: var(--glass); 
+            width: 90%; 
+            max-width: 450px; 
+            padding: 35px; 
+            border-radius: 30px; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); 
+        }
+
+        .progress-bar { 
+            background: var(--muted); 
+            height: 12px; 
+            border-radius: 20px; 
+            margin-bottom: 30px; 
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fill { 
+            /* Gradient progress bar */
+            background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%); 
+            height: 100%; 
+            width: 25%; 
+            transition: 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); 
+        }
+
+        .step { display: none; }
+        .step.active { display: block; animation: slideIn 0.4s ease-out; }
+
+        @keyframes slideIn { 
+            from { opacity: 0; transform: translateY(15px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        h2 { font-size: 24px; margin-bottom: 20px; color: #2d3436; border-left: 5px solid var(--primary); padding-left: 10px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; color: #636e72; }
+        
+        input { 
+            width: 100%; 
+            padding: 14px; 
+            margin-bottom: 4px; 
+            border: 2px solid #dfe6e9; 
+            border-radius: 12px; 
+            box-sizing: border-box; 
+            font-family: inherit;
+            transition: 0.3s;
+        }
+
+        input:focus { 
+            border-color: var(--purple); 
+            box-shadow: 0 0 15px rgba(37, 117, 252, 0.1);
+            outline: none; 
+        }
+
+        .err { 
+            color: var(--danger); 
+            font-size: 11px; 
+            margin-bottom: 15px; 
+            height: 14px;
+            visibility: hidden;
+            font-weight: 600;
+        }
+
+        .actions { display: flex; gap: 12px; margin-top: 10px; }
+        
+        button { 
+            flex: 1; 
+            padding: 16px; 
+            border: none; 
+            border-radius: 15px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: 0.3s;
+            font-size: 14px;
+        }
+
+        .next { 
+            background: linear-gradient(45deg, #ff7e5f, #feb47b); 
+            color: white; 
+            box-shadow: 0 5px 15px rgba(255, 126, 95, 0.4);
+        }
+
+        .next:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(255, 126, 95, 0.5);
+        }
+
+        .back { 
+            background: #dfe6e9; 
+            color: #2d3436; 
+        }
+
+        .back:hover { background: #b2bec3; }
+        
+        #summary { 
+            background: #f1f2f6; 
+            padding: 20px; 
+            border-radius: 18px; 
+            border-right: 5px solid var(--success);
+            font-size: 14px;
+            line-height: 2;
+            color: #2d3436;
+        }
+
+        #summary b { color: var(--deep); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="progress-bar"><div class="fill" id="indicator"></div></div>
+
+    <form id="engineForm">
+        <div class="step active" id="s1">
+            <h2>Personal info</h2>
+            <label>Full Name</label>
+            <input type="text" id="name" placeholder="E.g. Amar">
+            <div class="err" id="e-name">Min 3 characters required</div>
+            
+            <label>City</label>
+            <input type="text" id="city" placeholder="E.g. Amaravati">
+            <div class="err" id="e-city">Location is required</div>
+        </div>
+
+        <div class="step" id="s2">
+            <h2>Career</h2>
+            <label>Designation</label>
+            <input type="text" id="job" placeholder="E.g. Developer">
+            <div class="err" id="e-job">Please enter job title</div>
+            
+            <label>Experience (Years)</label>
+            <input type="number" id="exp" placeholder="0">
+            <div class="err" id="e-exp">Enter valid years</div>
+        </div>
+
+        <div class="step" id="s3">
+            <h2>Finance</h2>
+            <label>Expected CTC (₹)</label>
+            <input type="number" id="ctc" placeholder="Amount in INR">
+            <div class="err" id="e-ctc">Enter expected salary</div>
+        </div>
+
+        <div class="step" id="s4">
+            <h2>Confirmation</h2>
+            <div id="summary"></div>
+            <div class="err"></div>
+        </div>
+
+        <div class="actions">
+            <button type="button" class="back" id="btnBack" style="display: none;">Back</button>
+            <button type="button" class="next" id="btnNext">Continue</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    let stage = 1;
+    const views = document.querySelectorAll('.step');
+    const bar = document.getElementById('indicator');
+    const bNext = document.getElementById('btnNext');
+    const bBack = document.getElementById('btnBack');
+
+    function check() {
+        let ok = true;
+
+        if (stage === 1) {
+            const n = document.getElementById('name');
+            const c = document.getElementById('city');
+            if (n.value.trim().length < 3) { show('name'); ok = false; } else hide('name');
+            if (c.value.trim() === "") { show('city'); ok = false; } else hide('city');
+        }
+
+        if (stage === 2) {
+            const j = document.getElementById('job');
+            const e = document.getElementById('exp');
+            if (j.value.trim() === "") { show('job'); ok = false; } else hide('job');
+            if (e.value === "" || e.value < 0) { show('exp'); ok = false; } else hide('exp');
+        }
+
+        if (stage === 3) {
+            const s = document.getElementById('ctc');
+            if (s.value === "" || s.value <= 0) { show('ctc'); ok = false; } else hide('ctc');
+        }
+
+        return ok;
+    }
+
+    function show(id) { document.getElementById(`e-${id}`).style.visibility = 'visible'; }
+    function hide(id) { document.getElementById(`e-${id}`).style.visibility = 'hidden'; }
+
+    function refresh() {
+        views.forEach((v, i) => v.classList.toggle('active', (i + 1) === stage));
+        bar.style.width = (stage / 4) * 100 + "%";
+        bBack.style.display = stage === 1 ? 'none' : 'block';
+        bNext.textContent = stage === 4 ? 'Confirm & Submit' : 'Continue';
+
+        if (stage === 4) {
+            document.getElementById('summary').innerHTML = `
+                <b>Name:</b> ${document.getElementById('name').value}<br>
+                <b>Location:</b> ${document.getElementById('city').value}<br>
+                <b>Role:</b> ${document.getElementById('job').value}<br>
+                <b>CTC:</b> ₹${Number(document.getElementById('ctc').value).toLocaleString('en-IN')}
+            `;
+        }
+    }
+
+    bNext.addEventListener('click', () => {
+        if (stage < 4) {
+            if (check()) { stage++; refresh(); }
+        } else {
+            alert("Data Submitted to System");
+            location.reload();
+        }
+    });
+
+    bBack.addEventListener('click', () => {
+        stage--;
+        refresh();
+    });
+
+    refresh();
+</script>
+
+</body>
+</html>
