@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Product Search</title>
+<style>
+body { font-family: Arial; padding: 30px; }
+.product { border-bottom: 1px solid #ccc; padding: 5px; }
+</style>
+</head>
+<body>
+
+<h2>Live Product Search</h2>
+<input type="text" id="search" placeholder="Search product...">
+<div id="results"></div>
+
+<script>
+const searchInput = document.getElementById("search");
+const resultsDiv = document.getElementById("results");
+let timer;
+
+searchInput.addEventListener("input", () => {
+  clearTimeout(timer);
+  timer = setTimeout(() => {
+    const query = searchInput.value.toLowerCase();
+
+    fetch("products.json")
+      .then(res => res.json())
+      .then(products => {
+        const filtered = products.filter(p =>
+          p.name.toLowerCase().includes(query)
+        );
+
+        resultsDiv.innerHTML = "";
+
+        if (filtered.length === 0) {
+          resultsDiv.innerHTML = "<p>No results found</p>";
+          return;
+        }
+
+        filtered.forEach(p => {
+          resultsDiv.innerHTML += `
+            <div class="product">
+              <strong>${p.name}</strong><br>
+              Price: ₹${p.price}<br>
+              Category: ${p.category}
+            </div>
+          `;
+        });
+      })
+      .catch(() => {
+        resultsDiv.innerHTML = "<p>Error loading products</p>";
+      });
+  }, 500);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Student Management System</title>
+
+<style>
+body {
+    font-family: Arial;
+    padding: 30px;
+}
+
+input {
+    padding: 5px;
+    margin: 5px;
+}
+
+button {
+    padding: 5px 10px;
+    margin: 3px;
+    cursor: pointer;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+}
+
+#message {
+    font-weight: bold;
+    margin-top: 10px;
+}
+</style>
+
+</head>
+<body>
+
+<h2>Student Management System (AJAX CRUD)</h2>
+
+<form id="studentForm">
+    <input type="text" id="id" placeholder="Student ID" required>
+    <input type="text" id="name" placeholder="Name" required>
+    <input type="text" id="dept" placeholder="Department" required>
+    <input type="number" id="marks" placeholder="Marks" required>
+    <button type="submit">Save Student</button>
+</form>
+
+<p id="message"></p>
+
+<table>
+<thead>
+<tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Department</th>
+    <th>Marks</th>
+    <th>Actions</th>
+</tr>
+</thead>
+<tbody id="studentTable"></tbody>
+</table>
+
+<script>
+
+let students = JSON.parse(localStorage.getItem("students")) || [];
+let editIndex = -1;
+
+const table = document.getElementById("studentTable");
+const message = document.getElementById("message");
+
+function render() {
+    table.innerHTML = "";
+
+    if (students.length === 0) {
+        message.textContent = "No Records Found (404)";
+        return;
+    }
+
+    students.forEach((s, index) => {
+        table.innerHTML += `
+        <tr>
+            <td>${s.id}</td>
+            <td>${s.name}</td>
+            <td>${s.dept}</td>
+            <td>${s.marks}</td>
+            <td>
+                <button onclick="editStudent(${index})">Edit</button>
+                <button onclick="deleteStudent(${index})">Delete</button>
+            </td>
+        </tr>
+        `;
+    });
+}
+
+document.getElementById("studentForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const student = {
+        id: document.getElementById("id").value,
+        name: document.getElementById("name").value,
+        dept: document.getElementById("dept").value,
+        marks: document.getElementById("marks").value
+    };
+
+    if (editIndex === -1) {
+        students.push(student);
+        message.textContent = "Student Added Successfully (200 OK)";
+    } else {
+        students[editIndex] = student;
+        message.textContent = "Student Updated Successfully (200 OK)";
+        editIndex = -1;
+    }
+
+    localStorage.setItem("students", JSON.stringify(students));
+    document.getElementById("studentForm").reset();
+    render();
+});
+
+function editStudent(index) {
+    const s = students[index];
+
+    document.getElementById("id").value = s.id;
+    document.getElementById("name").value = s.name;
+    document.getElementById("dept").value = s.dept;
+    document.getElementById("marks").value = s.marks;
+
+    editIndex = index;
+    message.textContent = "Editing Student... (200 OK)";
+}
+
+function deleteStudent(index) {
+    if (index < 0 || index >= students.length) {
+        message.textContent = "Student Not Found (404)";
+        return;
+    }
+
+    students.splice(index, 1);
+    localStorage.setItem("students", JSON.stringify(students));
+    message.textContent = "Student Deleted Successfully (200 OK)";
+    render();
+}
+
+render();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Username Checker</title>
+<style>
+body { font-family: Arial; padding: 30px; }
+#status { margin-top: 10px; font-weight: bold; }
+.loading { color: orange; }
+.available { color: green; }
+.taken { color: red; }
+</style>
+</head>
+<body>
+
+<h2>Register</h2>
+<form id="registerForm">
+<input type="text" id="username" placeholder="Enter Username" required>
+<button type="submit">Register</button>
+<p id="status"></p>
+</form>
+
+<script>
+const usernameInput = document.getElementById("username");
+const statusText = document.getElementById("status");
+const form = document.getElementById("registerForm");
+let isAvailable = false;
+
+usernameInput.addEventListener("input", () => {
+  const username = usernameInput.value.trim();
+  if (!username) return;
+
+  statusText.textContent = "Checking...";
+  statusText.className = "loading";
+
+  fetch("users.json")
+    .then(res => res.json())
+    .then(data => {
+      if (data.usernames.includes(username.toLowerCase())) {
+        statusText.textContent = "Username already taken";
+        statusText.className = "taken";
+        isAvailable = false;
+      } else {
+        statusText.textContent = "Username available";
+        statusText.className = "available";
+        isAvailable = true;
+      }
+    })
+    .catch(() => {
+      statusText.textContent = "Error checking username";
+      statusText.className = "taken";
+      isAvailable = false;
+    });
+});
+
+form.addEventListener("submit", (e) => {
+  if (!isAvailable) {
+    e.preventDefault();
+    alert("Username unavailable!");
+  }
+});
+</script>
+
+</body>
+</html>

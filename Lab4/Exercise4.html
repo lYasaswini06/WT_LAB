@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Weather Dashboard</title>
+<style>
+body { font-family: Arial; padding: 30px; }
+#weather { margin-top: 20px; }
+.loading { color: orange; }
+</style>
+</head>
+<body>
+
+<h2>Weather Dashboard</h2>
+<input type="text" id="city" placeholder="Enter City">
+<button onclick="getWeather()">Search</button>
+
+<div id="weather"></div>
+
+<script>
+let cache = {};
+
+function getWeather() {
+  const city = document.getElementById("city").value;
+  const weatherDiv = document.getElementById("weather");
+
+  if (cache[city]) {
+    weatherDiv.innerHTML = cache[city];
+    return;
+  }
+
+  weatherDiv.innerHTML = "<p class='loading'>Loading...</p>";
+
+  const apiKey = "e62c921d0342f083bdbd9d10b7dc2cf3";
+  fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
+    .then(res => {
+      if (!res.ok) throw new Error("City not found");
+      return res.json();
+    })
+    .then(data => {
+      const output = `
+        <h3>${data.name}</h3>
+        Temperature: ${data.main.temp}°C <br>
+        Humidity: ${data.main.humidity}% <br>
+        Condition: ${data.weather[0].description}
+      `;
+      cache[city] = output;
+      weatherDiv.innerHTML = output;
+    })
+    .catch(err => {
+      weatherDiv.innerHTML = "<p>Error: " + err.message + "</p>";
+    });
+}
+</script>
+
+</body>
+</html>
