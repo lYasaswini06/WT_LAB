@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Product Inventory</title>
+<style>
+.lowStock { color:red; font-weight:bold; }
+table, th, td { border:1px solid black; border-collapse:collapse; padding:6px;}
+</style>
+</head>
+<body>
+
+<h2>Product Inventory</h2>
+<button onclick="loadInventory()">Load Inventory</button>
+
+<table>
+<thead>
+<tr>
+<th>ID</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th>
+</tr>
+</thead>
+<tbody id="inventoryTable"></tbody>
+</table>
+
+<p id="totalValue"></p>
+
+<script>
+function loadInventory() {
+    fetch("inventory.json")
+    .then(res => res.json())
+    .then(data => {
+        const table = document.getElementById("inventoryTable");
+        table.innerHTML = "";
+        let total = 0;
+
+        data.forEach(p => {
+            total += p.price * p.stock;
+
+            table.innerHTML += `
+            <tr>
+                <td>${p.id}</td>
+                <td>${p.name}</td>
+                <td>${p.category}</td>
+                <td>${p.price}</td>
+                <td class="${p.stock < 10 ? 'lowStock' : ''}">
+                    ${p.stock}
+                </td>
+            </tr>`;
+        });
+
+        document.getElementById("totalValue").textContent =
+            "Total Inventory Value: ₹" + total;
+    })
+    .catch(() => alert("Error loading JSON"));
+}
+</script>
+
+</body>
+</html>

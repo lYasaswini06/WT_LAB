@@ -1,0 +1,4 @@
+[
+    {"id":1,"name":"Laptop","category":"Electronics","price":60000,"stock":5},
+    {"id":2,"name":"Shoes","category":"Fashion","price":3000,"stock":20}
+]

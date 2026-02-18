@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Library XML</title>
+<style>
+table, th, td { border:1px solid black; border-collapse:collapse; padding:6px;}
+</style>
+</head>
+<body>
+
+<h2>Library Book Tracker</h2>
+
+<button onclick="loadBooks()">Load Books</button>
+<table>
+<thead>
+<tr>
+<th>ID</th><th>Title</th><th>Author</th><th>Status</th>
+</tr>
+</thead>
+<tbody id="bookTable"></tbody>
+</table>
+
+<script>
+function loadBooks() {
+    fetch("books.xml")
+    .then(res => res.text())
+    .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
+    .then(data => {
+        const books = data.getElementsByTagName("book");
+        const table = document.getElementById("bookTable");
+        table.innerHTML = "";
+
+        for (let i = 0; i < books.length; i++) {
+            const id = books[i].getElementsByTagName("id")[0].textContent;
+            const title = books[i].getElementsByTagName("title")[0].textContent;
+            const author = books[i].getElementsByTagName("author")[0].textContent;
+            const status = books[i].getElementsByTagName("status")[0].textContent;
+
+            table.innerHTML += `
+            <tr>
+                <td>${id}</td>
+                <td>${title}</td>
+                <td>${author}</td>
+                <td>${status}</td>
+            </tr>`;
+        }
+    })
+    .catch(() => alert("Error loading XML"));
+}
+</script>
+
+</body>
+</html>

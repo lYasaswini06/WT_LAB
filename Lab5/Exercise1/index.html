@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Employee XML CRUD</title>
+<style>
+table, th, td { border:1px solid black; border-collapse:collapse; padding:6px;}
+</style>
+</head>
+<body>
+
+<h2>Employee Management (XML)</h2>
+
+<button onclick="loadEmployees()">Load Employees</button>
+<p id="message"></p>
+
+<table>
+<thead>
+<tr>
+<th>ID</th><th>Name</th><th>Dept</th><th>Salary</th>
+</tr>
+</thead>
+<tbody id="empTable"></tbody>
+</table>
+
+<script>
+function loadEmployees() {
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", "employees.xml", true);
+
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            const xml = xhr.responseXML;
+            if (!xml) {
+                document.getElementById("message").textContent = "Malformed XML!";
+                return;
+            }
+
+            const employees = xml.getElementsByTagName("employee");
+            const table = document.getElementById("empTable");
+            table.innerHTML = "";
+
+            if (employees.length === 0) {
+                document.getElementById("message").textContent = "No Employees Found";
+                return;
+            }
+
+            for (let i = 0; i < employees.length; i++) {
+                const id = employees[i].getElementsByTagName("id")[0].textContent;
+                const name = employees[i].getElementsByTagName("name")[0].textContent;
+                const dept = employees[i].getElementsByTagName("department")[0].textContent;
+                const salary = employees[i].getElementsByTagName("salary")[0].textContent;
+
+                table.innerHTML += `
+                    <tr>
+                        <td>${id}</td>
+                        <td>${name}</td>
+                        <td>${dept}</td>
+                        <td>${salary}</td>
+                    </tr>`;
+            }
+
+            document.getElementById("message").textContent = "Loaded Successfully (200 OK)";
+        } else {
+            document.getElementById("message").textContent = "Error Loading XML";
+        }
+    };
+
+    xhr.send();
+}
+</script>
+
+</body>
+</html>

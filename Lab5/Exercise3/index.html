@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Student JSON CRUD</title>
+<style>
+table, th, td { border:1px solid black; border-collapse:collapse; padding:6px;}
+</style>
+</head>
+<body>
+
+<h2>Student Record System</h2>
+<button onclick="loadStudents()">Load Students</button>
+
+<table>
+<thead>
+<tr>
+<th>ID</th><th>Name</th><th>Course</th><th>Marks</th>
+</tr>
+</thead>
+<tbody id="studentTable"></tbody>
+</table>
+
+<script>
+function loadStudents() {
+    fetch("students.json")
+    .then(res => res.json())
+    .then(data => {
+        const table = document.getElementById("studentTable");
+        table.innerHTML = "";
+
+        data.forEach(s => {
+            table.innerHTML += `
+            <tr>
+                <td>${s.id}</td>
+                <td>${s.name}</td>
+                <td>${s.course}</td>
+                <td>${s.marks}</td>
+            </tr>`;
+        });
+    })
+    .catch(() => alert("JSON Parsing Error"));
+}
+</script>
+
+</body>
+</html>
