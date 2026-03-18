@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Marks Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background: #f8f9fa;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    .box {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    label {
+      display: block;
+      margin: 12px 0 4px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 10px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    #result {
+      margin-top: 25px;
+      padding: 15px;
+      background: #e8f5e9;
+      border: 1px solid #c8e6c9;
+      white-space: pre;
+      font-family: monospace;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <h2>Marks Calculator</h2>
+
+    <label>Student Name</label>
+    <input type="text" id="name" placeholder="Your name">
+
+    <label>Mark 1</label>
+    <input type="number" id="m1" placeholder="0-100">
+
+    <label>Mark 2</label>
+    <input type="number" id="m2" placeholder="0-100">
+
+    <label>Mark 3</label>
+    <input type="number" id="m3" placeholder="0-100">
+
+    <button onclick="calc()">Calculate</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const average = (a, b, c) => (a + b + c) / 3;
+
+    function calc() {
+      let name = document.getElementById("name").value || "Student";
+      let m1 = Number(document.getElementById("m1").value) || 0;
+      let m2 = Number(document.getElementById("m2").value) || 0;
+      let m3 = Number(document.getElementById("m3").value) || 0;
+
+      let total = m1 + m2 + m3;
+      let avg = average(m1, m2, m3).toFixed(2);
+
+      let text = `Name     : ${name}
+Total    : ${total} / 300
+Average  : ${avg}%`;
+
+      let box = document.getElementById("result");
+      box.textContent = text;
+      box.style.display = "block";
+    }
+  </script>
+
+</body>
+</html>

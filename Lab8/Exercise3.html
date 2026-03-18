@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Course Enrollment - ES6 Classes & Promises</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background: #f8f9fa;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .box {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        label {
+            display: block;
+            margin: 12px 0 4px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        #result {
+            margin-top: 25px;
+            padding: 20px;
+            background: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            white-space: pre;
+            font-family: monospace;
+            display: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>Course Enrollment System</h2>
+        
+        <label>Course Name</label>
+        <input type="text" id="courseName" placeholder="Web Technologies" value="Web Technologies">
+        
+        <label>Instructor</label>
+        <input type="text" id="instructor" placeholder="Dr. Kumar" value="Dr. Kumar">
+        
+        <label>Seats Available?</label>
+        <select id="seats" style="width: 100%; padding: 8px;">
+            <option value="true">Yes</option>
+            <option value="false">No (Course Full)</option>
+        </select>
+        
+        <button onclick="enrollCourse()">Enroll Now</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // ES6 Class definition
+        class Course {
+            constructor(courseName, instructor) {
+                this.courseName = courseName;
+                this.instructor = instructor;
+            }
+            
+            displayCourse() {
+                return `Course: ${this.courseName}, Instructor: ${this.instructor}`;
+            }
+        }
+        
+        function enrollCourse() {
+            // Get input values
+            let courseName = document.getElementById("courseName").value || "Web Technologies";
+            let instructor = document.getElementById("instructor").value || "Dr. Kumar";
+            let seatsAvailable = document.getElementById("seats").value === "true";
+            
+            // Create Course instance
+            let course1 = new Course(courseName, instructor);
+            
+            // Promise for enrollment
+            let enrollPromise = new Promise((resolve, reject) => {
+                if (seatsAvailable) {
+                    resolve("Enrollment Successful");
+                } else {
+                    reject("Course Full");
+                }
+            });
+            
+            // Execute promise chain
+            enrollPromise
+                .then(msg => {
+                    let text = `COURSE DETAILS:
+${course1.displayCourse()}
+
+ENROLLMENT RESULT:
+✅ ${msg}`;
+                    
+                    let box = document.getElementById("result");
+                    box.textContent = text;
+                    box.style.background = "#d4edda";
+                    box.style.display = "block";
+                })
+                .catch(err => {
+                    let text = `COURSE DETAILS:
+${course1.displayCourse()}
+
+ENROLLMENT RESULT:
+❌ ${err}`;
+                    
+                    let box = document.getElementById("result");
+                    box.textContent = text;
+                    box.style.background = "#f8d7da";
+                    box.style.borderColor = "#f5c6cb";
+                    box.style.display = "block";
+                });
+        }
+    </script>
+</body>
+</html>

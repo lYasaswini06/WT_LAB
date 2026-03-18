@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ES6 Student Object - Lab Sheet 8</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background: #f8f9fa;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .box {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        label {
+            display: block;
+            margin: 12px 0 4px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        #result {
+            margin-top: 25px;
+            padding: 20px;
+            background: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            white-space: pre;
+            font-family: monospace;
+            display: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>ES6 Student Object</h2>
+        
+        <label>ID</label>
+        <input type="number" id="id" placeholder="101">
+        
+        <label>Student Name</label>
+        <input type="text" id="name" placeholder="Priya">
+        
+        <label>Department</label>
+        <input type="text" id="dept" placeholder="CSE">
+        
+        <label>Marks</label>
+        <input type="number" id="marks" placeholder="92" max="100">
+        
+        <button onclick="runES6()">Run ES6</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function runES6() {
+            // Get input values and create student object
+            const student = {
+                id: Number(document.getElementById("id").value) || 101,
+                name: document.getElementById("name").value || "Priya",
+                department: document.getElementById("dept").value || "CSE",
+                marks: Number(document.getElementById("marks").value) || 92
+            };
+            
+            // Object destructuring
+            const {id, name, department, marks} = student;
+            
+            // Calculate grade
+            const grade = marks >= 90 ? "A" : marks >= 80 ? "B" : marks >= 70 ? "C" : "D";
+            
+            // Spread operator - create updated object
+            const updatedStudent = {
+                ...student,
+                grade: grade
+            };
+            
+            // Display results
+            let text = `OBJECT DESTRUCTURING:
+id        : ${id}
+name      : ${name}
+department: ${department}
+marks     : ${marks}
+
+SPREAD OPERATOR RESULT:
+${JSON.stringify(updatedStudent, null, 2)}`;
+            
+            let box = document.getElementById("result");
+            box.textContent = text;
+            box.style.display = "block";
+        }
+    </script>
+</body>
+</html>
